@@ -26,18 +26,18 @@ export default function RootLayout({
   aside: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-
-        <div className="container">
-
-        <aside>{aside}</aside>
-        <main>
-          {children}
-        </main>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+    >
+      <body suppressHydrationWarning>
+        <div className="main-container">
+          <aside>
+            {aside}
+          </aside>
+          <main>
+            {children}
+          </main>
         </div>
       </body>
     </html>
