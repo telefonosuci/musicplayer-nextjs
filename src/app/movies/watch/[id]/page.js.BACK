@@ -1,0 +1,75 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'next/navigation';
+
+async function fetchFilm(id) {
+  const res = await fetch('http://localhost:3000/api/movies/watch/' + id, {
+    cache: 'no-store', // ensures fresh data on each request (SSR)
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch movies');
+  }
+
+  const movie = await res.json();
+
+  console.log(movie);
+
+  return movie;
+}
+
+export default function FilmPlayerPage() {
+  const { id } = useParams();
+  const videoRef = useRef(null);
+  const [film, setFilm] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function loadFilm() {
+      try {
+        const movie = await fetchFilm(id);
+        setFilm(movie);
+      } catch (err) {
+        setError(err.message);
+      }
+    }
+    loadFilm();
+  }, [id]);
+
+  useEffect(() => {
+    if (film && videoRef.current) {
+      videoRef.current.src = film.src; // Dynamically set the video source
+    }
+  }, [film]);
+
+  if (error) {
+    return (
+      <div className="text-center mt-20 text-white">
+        <h2 className="text-2xl">Errore: {error}</h2>
+      </div>
+    );
+  }
+
+  if (!film) {
+    return (
+      <div className="text-center mt-20 text-white">
+        <h2 className="text-2xl">Caricamento...</h2>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-black text-white">
+      <h1 className="text-3xl font-bold mb-6">{film.title}</h1>
+      <video
+        ref={videoRef}
+        className="w-full max-w-4xl rounded shadow-lg"
+        controls
+        autoPlay
+      >
+        Il tuo browser non supporta il tag video.
+      </video>
+    </div>
+  );
+}

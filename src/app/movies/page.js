@@ -1,14 +1,17 @@
 
-export const dynamic = 'force-dynamic'; // prevents build-time prerendering
 import React from 'react';
-import { getConnection } from '../../lib/db'; // adjust the path if needed
-
 
 async function fetchMovies() {
-  const connection = await getConnection();
+  const res = await fetch('http://localhost:3000/api/movies', {
+    cache: 'no-store', // ensures fresh data on each request (SSR)
+  });
 
-  const [rows] = await connection.execute('SELECT * FROM movies');
-  return rows;
+  if (!res.ok) {
+    throw new Error('Failed to fetch movies');
+  }
+
+  const movies = await res.json();
+  return movies;
 }
 
 async function MoviesPage() {
@@ -17,14 +20,31 @@ async function MoviesPage() {
 
   return (
     <div>
-      <h1>Movies</h1>
-      <ul>
-        {movies.map((movie) => (
-          <li key={movie.id}>
-            <div>{movie.title}</div>
-          </li>
-        ))}
-      </ul>
+
+      <h3 className="text-2xl font-semibold mb-4">Popolari</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+
+
+              {movies.map((movie) => (
+
+                  <a key={movie.ID} href={`/movies/${movie.ID}`} className="block mb-4">
+                  <div className="relative group">
+                    <img src="https://placehold.co/300x400" alt="Titolo Film" className="rounded-lg group-hover:opacity-80 transition duration-300" />
+                    <div className="absolute bottom-2 left-2 text-sm bg-black bg-opacity-60 px-2 py-1 rounded">{movie.title}</div>
+                  </div>
+                  </a>
+
+              ))}
+
+
+          </div>
+
+
+
+
+
+
+
     </div>
   );
 }
